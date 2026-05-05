@@ -1,0 +1,28 @@
+# Environment — never commit secrets
+.env
+
+# Runtime data
+data/
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Dependencies
+node_modules/
+
+# Test output
+coverage/
+
+# Build output
+dist/
+
+# OS artefacts
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/settings.json
+*.swp
+*.swo

@@ -1,0 +1,308 @@
+openapi: 3.1.0
+
+info:
+  title: RFx Sourcing — Authentication Service
+  description: |
+    Issues HS256 JWTs consumed by the RFx Sourcing API Gateway and downstream services.
+    All error responses follow RFC 7807 Problem Details (`application/problem+json`).
+  version: "0.1.0"
+  contact:
+    name: Ramkumar (Solution Architect)
+
+servers:
+  - url: http://localhost:5003/api/v1
+    description: Local development
+
+tags:
+  - name: Auth
+    description: Token issuance and user identity
+  - name: Health
+    description: Liveness probe
+
+# ──────────────────────────────────────────────
+# Security scheme
+# ──────────────────────────────────────────────
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # ── Requests ──────────────────────────────
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          minLength: 1
+          example: buyer.user
+        password:
+          type: string
+          minLength: 1
+          example: Buyer@123
+
+    RefreshRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+          minLength: 1
+          example: eyJhbGciOiJIUzI1NiIs...
+
+    # ── Responses ─────────────────────────────
+    LoginResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: HS256-signed JWT (see §6 of the Auth Service Specification).
+          example: eyJhbGciOiJIUzI1NiIs...
+        refreshToken:
+          type: string
+          description: HS256-signed JWT with longer expiry.
+          example: eyJhbGciOiJIUzI1NiIs...
+        tokenType:
+          type: string
+          enum: [Bearer]
+        accessTokenExpiresInSeconds:
+          type: integer
+          description: Indicative hint; canonical expiry is in the JWT `exp` claim.
+          example: 900
+        refreshTokenExpiresInSeconds:
+          type: integer
+          description: Indicative hint; canonical expiry is in the JWT `exp` claim.
+          example: 86400
+
+    RefreshResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIs...
+        tokenType:
+          type: string
+          enum: [Bearer]
+        accessTokenExpiresInSeconds:
+          type: integer
+          example: 900
+
+    MeResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: Same value as the JWT `sub` claim.
+          example: 8f3b2c1a-1d4e-4a5b-9c7d-2e6f8a0b1c2d
+        username:
+          type: string
+          example: buyer.user
+        roles:
+          type: array
+          items:
+            type: string
+          example: [Buyer]
+        tokenIssuedAt:
+          type: string
+          format: date-time
+          description: ISO 8601; derived from JWT `iat`.
+          example: "2026-05-04T10:15:30.000Z"
+        tokenExpiresAt:
+          type: string
+          format: date-time
+          description: ISO 8601; derived from JWT `exp`.
+          example: "2026-05-04T10:30:30.000Z"
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [UP]
+        service:
+          type: string
+          example: auth-service
+        timestamp:
+          type: string
+          format: date-time
+          example: "2026-05-04T10:15:30.000Z"
+
+    # ── RFC 7807 Problem Details ───────────────
+    ProblemDetails:
+      type: object
+      description: RFC 7807 Problem Details object (`application/problem+json`).
+      properties:
+        type:
+          type: string
+          format: uri
+          example: https://rfx.gep.local/probs/invalid-credentials
+        title:
+          type: string
+          example: Invalid credentials
+        status:
+          type: integer
+          example: 401
+        detail:
+          type: string
+          example: Username or password is incorrect.
+        instance:
+          type: string
+          example: /api/v1/auth/login
+        correlationId:
+          type: string
+          format: uuid
+          example: abc-123-def-456
+
+# ──────────────────────────────────────────────
+# Paths
+# ──────────────────────────────────────────────
+paths:
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Authenticate; receive tokens
+      description: |
+        Authenticate a user with username and password.
+        Issues a short-lived access token (HS256) and a long-lived refresh token.
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Validation error — missing or empty fields
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+              example:
+                type: https://rfx.gep.local/probs/validation-error
+                title: Validation error
+                status: 400
+                detail: "username is required; password is required"
+                instance: /api/v1/auth/login
+                correlationId: abc-124
+        '401':
+          description: Invalid credentials
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+              example:
+                type: https://rfx.gep.local/probs/invalid-credentials
+                title: Invalid credentials
+                status: 401
+                detail: Username or password is incorrect.
+                instance: /api/v1/auth/login
+                correlationId: abc-123
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Exchange refresh token for a new access token
+      description: |
+        Supply a valid refresh token to obtain a new access token.
+        The refresh token itself is **not** rotated (same token reused until expiry).
+      operationId: refresh
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: New access token issued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshResponse'
+        '400':
+          description: Validation error — missing or empty refreshToken field
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '401':
+          description: Refresh token invalid, malformed, or expired
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+              example:
+                type: https://rfx.gep.local/probs/invalid-refresh-token
+                title: Invalid or expired refresh token
+                status: 401
+                detail: The supplied refresh token is invalid, malformed, or has expired.
+                instance: /api/v1/auth/refresh
+                correlationId: abc-125
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Current user profile
+      description: |
+        Returns the profile and token claims of the authenticated user.
+        Requires a valid Bearer access token in the `Authorization` header.
+      operationId: me
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Authenticated user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeResponse'
+        '401':
+          description: Missing, malformed, or expired access token
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+              example:
+                type: https://rfx.gep.local/probs/invalid-access-token
+                title: Invalid access token
+                status: 401
+                detail: The supplied access token is invalid, malformed, or has expired.
+                instance: /api/v1/auth/me
+                correlationId: abc-126
+
+  /health:
+    get:
+      tags: [Health]
+      summary: Liveness probe
+      description: Returns the current health status of the service. No authentication required.
+      operationId: health
+      responses:
+        '200':
+          description: Service is up
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
