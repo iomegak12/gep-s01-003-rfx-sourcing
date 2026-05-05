@@ -1,0 +1,50 @@
+# OS-generated files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+coverage/
+.cache/
+out/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Package manager files
+.pnpm-store/
+
+# Test output
+.nyc_output/
+
+# Misc
+*.pid
+*.seed
+*.pid.lock
