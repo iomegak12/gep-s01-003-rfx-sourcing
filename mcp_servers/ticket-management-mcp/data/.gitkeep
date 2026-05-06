@@ -1,0 +1,1 @@
+# keep data directory tracked; actual *.db files are gitignored

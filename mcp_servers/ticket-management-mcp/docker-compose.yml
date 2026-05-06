@@ -1,0 +1,14 @@
+services:
+  ticket-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ticket-management-mcp:latest
+    container_name: ticket-management-mcp
+    ports:
+      - "8989:8989"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
