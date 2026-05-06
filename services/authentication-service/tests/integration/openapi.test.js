@@ -22,7 +22,7 @@ describe('GET /api/openapi.json', () => {
     expect(res.body.info.version).toBe(version);
   });
 
-  it('spec covers all four endpoints', async () => {
+  it('spec covers all five endpoints including versioned spec route', async () => {
     const res = await request(app).get('/api/openapi.json');
     const paths = Object.keys(res.body.paths);
 
@@ -30,6 +30,7 @@ describe('GET /api/openapi.json', () => {
     expect(paths).toContain('/auth/refresh');
     expect(paths).toContain('/auth/me');
     expect(paths).toContain('/health');
+    expect(paths).toContain('/openapi.json');
   });
 
   it('ProblemDetails schema is defined as a reusable component', async () => {
@@ -46,6 +47,18 @@ describe('GET /api/openapi.json', () => {
       scheme: 'bearer',
       bearerFormat: 'JWT',
     });
+  });
+});
+
+describe('GET /api/v1/openapi.json', () => {
+  it('returns same spec as /api/openapi.json', async () => {
+    const r1 = await request(app).get('/api/openapi.json');
+    const r2 = await request(app).get('/api/v1/openapi.json');
+
+    expect(r2.status).toBe(200);
+    expect(r2.headers['content-type']).toMatch(/application\/json/);
+    expect(r2.body.info.version).toBe(r1.body.info.version);
+    expect(Object.keys(r2.body.paths)).toEqual(Object.keys(r1.body.paths));
   });
 });
 

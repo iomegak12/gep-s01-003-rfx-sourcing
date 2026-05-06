@@ -16,3 +16,8 @@ function open() {
 }
 
 export const db = open();
+
+export function closeDb() {
+  db.close();
+  logger.info('Database closed');
+}

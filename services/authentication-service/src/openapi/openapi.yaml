@@ -18,6 +18,8 @@ tags:
     description: Token issuance and user identity
   - name: Health
     description: Liveness probe
+  - name: Docs
+    description: API specification
 
 # ──────────────────────────────────────────────
 # Security scheme
@@ -161,6 +163,21 @@ components:
 # Paths
 # ──────────────────────────────────────────────
 paths:
+  /openapi.json:
+    get:
+      tags: [Docs]
+      summary: Download OpenAPI spec (JSON)
+      description: Returns the full OpenAPI 3.1 specification for this service as a JSON object. Useful for code generation and tooling.
+      operationId: getOpenApiSpec
+      responses:
+        '200':
+          description: OpenAPI 3.1 specification object
+          content:
+            application/json:
+              schema:
+                type: object
+                description: OpenAPI 3.1 document
+
   /auth/login:
     post:
       tags: [Auth]

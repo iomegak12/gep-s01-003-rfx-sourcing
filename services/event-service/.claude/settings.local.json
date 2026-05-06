@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s http://localhost:5003/api/v1/openapi.json -o c:\\\\tmp\\\\auth-openapi.json)",
+      "Bash(node -e \"const d=require\\('c:/tmp/auth-openapi.json'\\);console.log\\('paths:',Object.keys\\(d.paths||{}\\).join\\('\\\\n'\\)\\);console.log\\('---'\\);console.log\\('schemes:',JSON.stringify\\(d.components?.securitySchemes,null,2\\)\\);console.log\\('---'\\);console.log\\('servers:',JSON.stringify\\(d.servers,null,2\\)\\);\")",
+      "Bash(curl -s http://localhost:5003/api/v1/openapi.json)",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const o=JSON.parse\\(d\\);console.log\\('TITLE:',o.info?.title\\);console.log\\('SERVERS:',JSON.stringify\\(o.servers\\)\\);console.log\\('SECURITY_SCHEMES:',JSON.stringify\\(o.components?.securitySchemes,null,2\\)\\);console.log\\('PATHS:',Object.keys\\(o.paths||{}\\).join\\('\\\\n'\\)\\);}\\)\")",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const o=JSON.parse\\(d\\);console.log\\('LOGIN_RESP:',JSON.stringify\\(o.paths['/auth/login']?.post?.responses?.['200'],null,2\\).slice\\(0,2000\\)\\);console.log\\('---'\\);console.log\\('ME_RESP:',JSON.stringify\\(o.paths['/auth/me']?.get?.responses?.['200'],null,2\\).slice\\(0,1500\\)\\);console.log\\('---'\\);const schemas=o.components?.schemas||{};console.log\\('SCHEMA_NAMES:',Object.keys\\(schemas\\).join\\(','\\)\\);}\\)\")",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const o=JSON.parse\\(d\\);const s=o.components.schemas;['LoginResponse','MeResponse'].forEach\\(n=>{console.log\\('===',n,'==='\\);console.log\\(JSON.stringify\\(s[n],null,2\\)\\);}\\);}\\)\")",
+      "Bash(copy \"C:\\\\Users\\\\LENOVO\\\\.claude\\\\plans\\\\docs-brd-md-docs-hld-md-docs-lld-event-indexed-plum.md\" \"c:\\\\000 - GEP - S01 - 003\\\\rfx-sourcing\\\\services\\\\event-service\\\\docs\\\\impl-event-service-plan.md\")",
+      "Bash(cp \"/c/Users/LENOVO/.claude/plans/docs-brd-md-docs-hld-md-docs-lld-event-indexed-plum.md\" \"/c/000 - GEP - S01 - 003/rfx-sourcing/services/event-service/docs/impl-event-service-plan.md\" && ls -la \"/c/000 - GEP - S01 - 003/rfx-sourcing/services/event-service/docs/impl-event-service-plan.md\")",
+      "Bash(dotnet --list-sdks)",
+      "Bash(dotnet new *)",
+      "Bash(rm -f WeatherForecast.cs Controllers/WeatherForecastController.cs EventService.http tmpauth-openapi.json)",
+      "Read(//c/c/000 - GEP - S01 - 003/rfx-sourcing/services/event-service/**)",
+      "Bash(dotnet add *)",
+      "Bash(rm -f UnitTest1.cs)",
+      "Bash(mkdir -p Unit Integration)",
+      "Bash(dotnet build *)",
+      "Bash(dotnet restore *)",
+      "Bash(ASPNETCORE_ENVIRONMENT=Development dotnet run --project EventService.csproj --no-build)",
+      "Bash(curl -s -o /dev/null -w \"health: %{http_code}\\\\n\" http://localhost:5001/api/v1/health)",
+      "Bash(curl -s -o /dev/null -w \"openapi: %{http_code}\\\\n\" http://localhost:5001/api/v1/openapi.json)",
+      "Bash(curl -s -o /dev/null -w \"swagger: %{http_code}\\\\n\" http://localhost:5001/swagger/index.html)",
+      "Bash(curl -s http://localhost:5001/api/v1/health)",
+      "Bash(curl -s http://localhost:5001/api/v1/openapi.json)",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const o=JSON.parse\\(d\\);console.log\\('openapi:',o.openapi\\);console.log\\('title:',o.info?.title\\);console.log\\('paths:',Object.keys\\(o.paths||{}\\).join\\(','\\)\\);console.log\\('schemes:',Object.keys\\(o.components?.securitySchemes||{}\\).join\\(','\\)\\);}\\)\")",
+      "Bash(curl -s -X POST http://localhost:5001/__shutdown)",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const o=JSON.parse\\(d\\);console.log\\('openapi:',o.openapi\\);console.log\\('title:',o.info?.title,'version:',o.info?.version\\);console.log\\('paths:',Object.keys\\(o.paths||{}\\).join\\(','\\)\\);console.log\\('schemes:',Object.keys\\(o.components?.securitySchemes||{}\\).join\\(','\\)\\);}\\)\")",
+      "Bash(dotnet test *)",
+      "Bash(dotnet ef *)",
+      "Bash(dotnet tool *)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\LENOVO\\.claude\\plans"
+    ]
+  }
+}
